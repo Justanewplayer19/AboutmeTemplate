@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Profile Template</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		/* Reset and base styles */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		:root {
+			--bg-primary: #0a0a0a;
+			--bg-secondary: #121212;
+			--bg-tertiary: #1a1a1a;
+			--text-primary: #ffffff;
+			--text-secondary: #a0a0a0;
+			--accent: #3b82f6;
+			--accent-hover: #2563eb;
+			--border: rgba(255, 255, 255, 0.1);
+			--card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+			--transition: all 0.3s ease;
+		}
+
+		body {
+			font-family: 'Inter', sans-serif;
+			color: var(--text-primary);
+			background-color: var(--bg-primary);
+			line-height: 1.6;
+			overflow-x: hidden;
+		}
+
+		a {
+			text-decoration: none;
+			color: inherit;
+			transition: var(--transition);
+		}
+
+		button {
+			font-family: 'Inter', sans-serif;
+			cursor: pointer;
+			border: none;
+			outline: none;
+			transition: var(--transition);
+		}
+
+		/* Animations */
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(1);
+			}
+
+			50% {
+				transform: scale(1.05);
+			}
+
+			100% {
+				transform: scale(1);
+			}
+		}
+
+		@keyframes float {
+			0% {
+				transform: translateY(0px);
+			}
+
+			50% {
+				transform: translateY(-10px);
+			}
+
+			100% {
+				transform: translateY(0px);
+			}
+		}
+
+		/* Layout */
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+			padding: 2rem;
+		}
+
+		.min-h-screen {
+			min-height: 100vh;
+		}
+
+		/* Background elements */
+		.background {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+			overflow: hidden;
+		}
+
+		.gradient-sphere {
+			position: absolute;
+			border-radius: 50%;
+			filter: blur(80px);
+			opacity: 0.15;
+		}
+
+		.gradient-sphere:nth-child(1) {
+			top: -10%;
+			left: -10%;
+			width: 50vw;
+			height: 50vw;
+			background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+			animation: float 15s ease-in-out infinite;
+		}
+
+		.gradient-sphere:nth-child(2) {
+			bottom: -20%;
+			right: -10%;
+			width: 60vw;
+			height: 60vw;
+			background: radial-gradient(circle, #10b981 0%, transparent 70%);
+			animation: float 20s ease-in-out infinite reverse;
+		}
+
+		.noise {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+			opacity: 0.02;
+			z-index: -1;
+			pointer-events: none;
+		}
+
+		/* Enter screen */
+		#enter-screen {
+			position: fixed;
+			inset: 0;
+			background-color: var(--bg-primary);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			z-index: 50;
+			cursor: pointer;
+			flex-direction: column;
+		}
+
+		#enter-screen h1 {
+			color: var(--text-primary);
+			font-size: 3rem;
+			font-weight: 700;
+			margin-bottom: 1rem;
+			opacity: 0;
+			animation: fadeIn 1s ease forwards 0.5s;
+		}
+
+		#enter-screen p {
+			color: var(--text-secondary);
+			opacity: 0;
+			animation: fadeIn 1s ease forwards 1s;
+		}
+
+		/* Sound toggle */
+		#sound-toggle {
+			position: fixed;
+			bottom: 2rem;
+			right: 2rem;
+			z-index: 10;
+			width: 3rem;
+			height: 3rem;
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			cursor: pointer;
+			background-color: var(--bg-tertiary);
+			box-shadow: var(--card-shadow);
+			border: 1px solid var(--border);
+		}
+
+		#sound-toggle:hover {
+			transform: scale(1.1);
+		}
+
+		#sound-toggle svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			fill: none;
+			stroke: var(--text-primary);
+			stroke-width: 2;
+			stroke-linecap: round;
+			stroke-linejoin: round;
+		}
+
+		/* Now playing */
+		.now-playing {
+			position: fixed;
+			bottom: 2rem;
+			left: 2rem;
+			background-color: var(--bg-tertiary);
+			border-radius: 2rem;
+			padding: 0.75rem 1.5rem;
+			box-shadow: var(--card-shadow);
+			border: 1px solid var(--border);
+			color: var(--text-primary);
+			font-size: 0.875rem;
+			z-index: 10;
+			opacity: 0;
+			transform: translateY(10px);
+			transition: var(--transition);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.now-playing.visible {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		.now-playing .icon {
+			width: 1rem;
+			height: 1rem;
+			background-color: var(--accent);
+			border-radius: 50%;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.now-playing .icon::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(255, 255, 255, 0.2);
+			animation: pulse 2s infinite;
+			border-radius: 50%;
+		}
+
+		/* Main layout */
+		.content-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+			animation: fadeIn 1s ease;
+		}
+
+		@media (min-width: 1024px) {
+			.content-wrapper {
+				flex-direction: row;
+			}
+		}
+
+		/* Sidebar */
+		.sidebar {
+			width: 100%;
+		}
+
+		@media (min-width: 1024px) {
+			.sidebar {
+				width: 350px;
+				position: sticky;
+				top: 2rem;
+				height: calc(100vh - 4rem);
+			}
+		}
+
+		.sidebar-inner {
+			background-color: var(--bg-secondary);
+			border-radius: 1rem;
+			overflow: hidden;
+			box-shadow: var(--card-shadow);
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.profile-header {
+			padding: 2rem;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.profile-header::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: linear-gradient(to bottom, rgba(59, 130, 246, 0.1), transparent);
+			z-index: 0;
+		}
+
+		.profile-image-container {
+			position: relative;
+			width: 120px;
+			height: 120px;
+			margin: 0 auto 1.5rem;
+			z-index: 1;
+		}
+
+		.profile-image {
+			width: 100%;
+			height: 100%;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 3px solid var(--accent);
+			box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+		}
+
+		.profile-image-container::after {
+			content: '';
+			position: absolute;
+			top: -5px;
+			left: -5px;
+			right: -5px;
+			bottom: -5px;
+			border-radius: 50%;
+			border: 1px solid var(--accent);
+			opacity: 0.5;
+			animation: pulse 2s infinite;
+		}
+
+		.profile-name {
+			font-size: 1.75rem;
+			font-weight: 700;
+			margin-bottom: 0.5rem;
+			position: relative;
+			z-index: 1;
+		}
+
+		.profile-bio {
+			color: var(--text-secondary);
+			font-size: 0.9rem;
+			position: relative;
+			z-index: 1;
+		}
+
+		.sidebar-content {
+			padding: 0 1.5rem 1.5rem;
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 1.5rem;
+		}
+
+		.sidebar-section {
+			padding-top: 1.5rem;
+			border-top: 1px solid var(--border);
+		}
+
+		.sidebar-section:first-child {
+			border-top: none;
+			padding-top: 0;
+		}
+
+		.sidebar-section h2 {
+			font-size: 1rem;
+			font-weight: 600;
+			margin-bottom: 1rem;
+			color: var(--text-primary);
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.sidebar-section h2 svg {
+			width: 1rem;
+			height: 1rem;
+			stroke: var(--accent);
+		}
+
+		.skills-container {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+		}
+
+		.skill-tag {
+			display: inline-flex;
+			padding: 0.4rem 0.75rem;
+			background-color: rgba(59, 130, 246, 0.1);
+			color: var(--accent);
+			font-size: 0.75rem;
+			border-radius: 0.375rem;
+			font-weight: 500;
+			transition: var(--transition);
+		}
+
+		.skill-tag:hover {
+			background-color: rgba(59, 130, 246, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.contact-link {
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 0.75rem;
+			border-radius: 0.5rem;
+			transition: var(--transition);
+			color: var(--text-secondary);
+		}
+
+		.contact-link:hover {
+			background-color: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		.contact-link svg {
+			width: 1.25rem;
+			height: 1.25rem;
+			stroke: var(--accent);
+		}
+
+		.bsf-button {
+			margin-top: auto;
+			padding: 0.75rem 1rem;
+			background-color: var(--accent);
+			color: white;
+			border-radius: 0.5rem;
+			font-weight: 500;
+			text-align: center;
+			transition: var(--transition);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.5rem;
+		}
+
+		.bsf-button:hover {
+			background-color: var(--accent-hover);
+			transform: translateY(-2px);
+		}
+
+		.bsf-button svg {
+			width: 1.25rem;
+			height: 1.25rem;
+			stroke: white;
+		}
+
+		/* Main content */
+		.main-content {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			gap: 2rem;
+		}
+
+		.section {
+			background-color: var(--bg-secondary);
+			border-radius: 1rem;
+			overflow: hidden;
+			box-shadow: var(--card-shadow);
+		}
+
+		.section-header {
+			padding: 1.5rem;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.section-header h2 {
+			font-size: 1.25rem;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		.section-header svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			stroke: var(--accent);
+		}
+
+		.section-content {
+			padding: 1.5rem;
+		}
+
+		.section-content p {
+			color: var(--text-secondary);
+			line-height: 1.8;
+		}
+
+		/* Projects grid */
+		.projects-grid,
+		.discord-grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 1rem;
+		}
+
+		@media (min-width: 768px) {
+
+			.projects-grid,
+			.discord-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		.card {
+			background-color: var(--bg-tertiary);
+			border-radius: 0.75rem;
+			overflow: hidden;
+			transition: var(--transition);
+			border: 1px solid var(--border);
+		}
+
+		.card:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+			border-color: rgba(59, 130, 246, 0.3);
+		}
+
+		.card-content {
+			padding: 1.25rem;
+		}
+
+		.card-title {
+			font-weight: 600;
+			font-size: 1.1rem;
+			margin-bottom: 0.5rem;
+			color: var(--text-primary);
+		}
+
+		.card-description {
+			color: var(--text-secondary);
+			font-size: 0.875rem;
+			margin-bottom: 1rem;
+		}
+
+		.card-footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding-top: 1rem;
+			border-top: 1px solid var(--border);
+			margin-top: auto;
+		}
+
+		.card-date {
+			font-size: 0.75rem;
+			color: var(--text-secondary);
+		}
+
+		.card-tag {
+			display: inline-flex;
+			padding: 0.25rem 0.5rem;
+			background-color: rgba(59, 130, 246, 0.1);
+			color: var(--accent);
+			font-size: 0.75rem;
+			border-radius: 0.375rem;
+			font-weight: 500;
+		}
+
+		/* Links */
+		.links-container {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		.link-item {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 1rem 1.25rem;
+			background-color: var(--bg-tertiary);
+			border-radius: 0.75rem;
+			transition: var(--transition);
+			border: 1px solid var(--border);
+		}
+
+		.link-item:hover {
+			transform: translateY(-3px);
+			border-color: rgba(59, 130, 246, 0.3);
+			box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+		}
+
+		.link-content {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		.link-icon {
+			width: 2.5rem;
+			height: 2.5rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background-color: rgba(59, 130, 246, 0.1);
+			border-radius: 0.5rem;
+		}
+
+		.link-icon svg {
+			width: 1.25rem;
+			height: 1.25rem;
+			stroke: var(--accent);
+		}
+
+		.link-text {
+			font-weight: 500;
+		}
+
+		.link-tag {
+			font-size: 0.75rem;
+			padding: 0.25rem 0.5rem;
+			background-color: rgba(59, 130, 246, 0.1);
+			color: var(--accent);
+			border-radius: 0.375rem;
+			font-weight: 500;
+		}
+
+		/* Footer */
+		footer {
+			text-align: center;
+			padding: 2rem 0;
+			color: var(--text-secondary);
+			font-size: 0.875rem;
+		}
+
+		.credits-text {
+			display: block;
+			font-size: 1rem;
+			margin-top: 1rem;
+			color: var(--text-primary);
+			max-width: 600px;
+			margin-left: auto;
+			margin-right: auto;
+			line-height: 1.6;
+		}
+
+		/* Modal */
+		#bsf-modal {
+			position: fixed;
+			inset: 0;
+			background-color: rgba(0, 0, 0, 0.8);
+			backdrop-filter: blur(8px);
+			z-index: 50;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			overflow-y: auto;
+			padding: 2rem;
+		}
+
+		.modal-content {
+			background-color: var(--bg-secondary);
+			border-radius: 1rem;
+			width: 100%;
+			max-width: 1200px;
+			position: relative;
+			overflow: hidden;
+			box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+		}
+
+		.modal-header {
+			padding: 1.5rem;
+			border-bottom: 1px solid var(--border);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.modal-title {
+			font-size: 1.5rem;
+			font-weight: 600;
+			color: var(--text-primary);
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.modal-title svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			stroke: var(--accent);
+		}
+
+		.modal-close {
+			background: none;
+			color: var(--text-secondary);
+			width: 2.5rem;
+			height: 2.5rem;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: var(--transition);
+		}
+
+		.modal-close:hover {
+			background-color: var(--bg-tertiary);
+			color: var(--text-primary);
+		}
+
+		.modal-close svg {
+			width: 1.5rem;
+			height: 1.5rem;
+			stroke: currentColor;
+		}
+
+		.modal-body {
+			padding: 1.5rem;
+		}
+
+		/* Photo album */
+		.photo-album {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 1.5rem;
+			max-height: 70vh;
+			overflow-y: auto;
+			padding: 0.5rem;
+		}
+
+		.photo-item {
+			background-color: var(--bg-tertiary);
+			border-radius: 0.75rem;
+			overflow: hidden;
+			transition: var(--transition);
+			border: 1px solid var(--border);
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.photo-item:hover {
+			transform: translateY(-5px) scale(1.02);
+			box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+			border-color: rgba(59, 130, 246, 0.3);
+		}
+
+		.photo-image-container {
+			position: relative;
+			overflow: hidden;
+			aspect-ratio: 1 / 1;
+		}
+
+		.photo-image {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: var(--transition);
+		}
+
+		.photo-item:hover .photo-image {
+			transform: scale(1.05);
+		}
+
+		.photo-caption {
+			padding: 1rem;
+			background-color: var(--bg-tertiary);
+			color: var(--text-secondary);
+			font-size: 0.875rem;
+			flex: 1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			border-top: 1px solid var(--border);
+		}
+	</style>
+</head>
+
+<body>
+	<div id="enter-screen">
+		<h1>Welcome</h1>
+		<p>Click anywhere to enter</p>
+	</div>
+
+	<div class="background">
+		<div class="gradient-sphere"></div>
+		<div class="gradient-sphere"></div>
+		<div class="noise"></div>
+	</div>
+
+	<div id="audio-container" style="display: none;">
+		<!-- Audio elements will be created dynamically by JavaScript -->
+	</div>
+
+	<div id="now-playing" class="now-playing">
+		<div class="icon"></div>
+		<span id="track-name">Loading...</span>
+	</div>
+
+	<button id="sound-toggle">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+      <line x1="23" y1="9" x2="17" y2="15"></line>
+      <line x1="17" y1="9" x2="23" y2="15"></line>
+    </svg>
+  </button>
+
+	<div class="min-h-screen">
+		<div class="container">
+			<div class="content-wrapper">
+				<!-- Sidebar -->
+				<div class="sidebar">
+					<div class="sidebar-inner">
+						<div class="profile-header">
+							<div class="profile-image-container">
+								<img src="/placeholder.svg?height=120&width=120&query=profile%20avatar" alt="Profile" class="profile-image">
+              </div>
+								<h1 class="profile-name">Your Name</h1>
+								<div class="profile-bio">Your Age - Your Title</div>
+							</div>
+
+							<div class="sidebar-content">
+								<div class="sidebar-section">
+									<h2>
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+											stroke="currentColor" stroke-width="2" stroke-linecap="round"
+											stroke-linejoin="round">
+											<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+											<polyline points="22 4 12 14.01 9 11.01"></polyline>
+										</svg>
+										Skills
+									</h2>
+									<div class="skills-container">
+										<span class="skill-tag">Skill 1</span>
+										<span class="skill-tag">Skill 2</span>
+										<span class="skill-tag">Skill 3</span>
+										<span class="skill-tag">Skill 4</span>
+									</div>
+								</div>
+
+								<div class="sidebar-section">
+									<h2>
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+											stroke="currentColor" stroke-width="2" stroke-linecap="round"
+											stroke-linejoin="round">
+											<path
+												d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+											</path>
+											<polyline points="22,6 12,13 2,6"></polyline>
+										</svg>
+										Contact
+									</h2>
+									<a href="#" target="_blank" class="contact-link">
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+											stroke="currentColor" stroke-width="2" stroke-linecap="round"
+											stroke-linejoin="round">
+											<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z">
+											</path>
+										</svg>
+										Your Discord Username
+									</a>
+								</div>
+
+								<button class="bsf-button" id="bsf-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                Photo Album
+              </button>
+							</div>
+						</div>
+					</div>
+
+					<!--   
+(_) | _____   _____  __ _ _ __   __| |_ __ ___ (_)___ ___ _ __ ___  _   _  __ _ / _|  _ __ ___   __ _  __| | ___  | |_| |__ (_)___ 
+| | |/ _ \ \ / / _ \/ _` | '_ \ / _` | '_ ` _ \| / __/ __| '_ ` _ \| | | |/ _` | |_  | '_ ` _ \ / _` |/ _` |/ _ \ | __| '_ \| / __|
+| | | (_) \ V /  __/ (_| | | | | (_| | | | | | | \__ \__ \ | | | | | |_| | (_| |  _| | | | | | | (_| | (_| |  __/ | |_| | | | \__ \
+|_|_|\___/ \_/ \___|\__,_|_| |_|\__,_|_| |_| |_|_|___/___/_| |_| |_|\__, |\__, |_|   |_| |_| |_|\__,_|\__,_|\___|  \__|_| |_|_|___/
+                                                                    |___/ |___/                                                    -->
+					<div class="main-content">
+						<section class="section">
+							<div class="section-header">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round">
+									<circle cx="12" cy="12" r="10"></circle>
+									<line x1="12" y1="8" x2="12" y2="12"></line>
+									<line x1="12" y1="16" x2="12.01" y2="16"></line>
+								</svg>
+								<h2>About Me</h2>
+							</div>
+							<div class="section-content">
+								<p>
+									Hey! My name is [Your Name], and this is a brief introduction about yourself. Write
+									about your interests, hobbies, and what you're passionate about. You can mention
+									your skills, what you're learning, and any projects you're working on. This is a
+									great place to let visitors know who you are and what you do.
+								</p>
+							</div>
+						</section>
+
+						<section class="section">
+							<div class="section-header">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round">
+									<polygon
+										points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+									</polygon>
+								</svg>
+								<h2>Projects</h2>
+							</div>
+							<div class="section-content">
+								<div class="projects-grid">
+									<div class="card">
+										<div class="card-content">
+											<h3 class="card-title">Project One</h3>
+											<p class="card-description">Description of your first project.</p>
+											<div class="card-footer">
+												<div class="card-date">Started: January 2025</div>
+												<div class="card-tag">In Progress</div>
+											</div>
+										</div>
+									</div>
+									<div class="card">
+										<div class="card-content">
+											<h3 class="card-title">Project Two</h3>
+											<p class="card-description">Description of your second project.</p>
+											<div class="card-footer">
+												<div class="card-date">Started: February 2025</div>
+												<div class="card-tag">Completed</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+
+						<section class="section">
+							<div class="section-header">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round">
+									<path
+										d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+									</path>
+								</svg>
+								<h2>Social Media</h2>
+							</div>
+							<div class="section-content">
+								<div class="discord-grid">
+									<div class="card">
+										<div class="card-content">
+											<h3 class="card-title">Discord</h3>
+											<p class="card-description">@yourusername</p>
+											<div class="card-footer">
+												<div class="card-tag">main</div>
+											</div>
+										</div>
+									</div>
+									<div class="card">
+										<div class="card-content">
+											<h3 class="card-title">Twitter</h3>
+											<p class="card-description">@yourusername</p>
+											<div class="card-footer">
+												<div class="card-tag">social</div>
+											</div>
+										</div>
+									</div>
+									<div class="card">
+										<div class="card-content">
+											<h3 class="card-title">Instagram</h3>
+											<p class="card-description">@yourusername</p>
+											<div class="card-footer">
+												<div class="card-tag">photos</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+
+						<section class="section">
+							<div class="section-header">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round"
+									stroke-linejoin="round">
+									<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+									<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+								</svg>
+								<h2>Links</h2>
+							</div>
+							<div class="section-content">
+								<div class="links-container">
+									<a href="#" target="_blank" class="link-item">
+										<div class="link-content">
+											<div class="link-icon">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round"
+													stroke-linejoin="round">
+													<circle cx="12" cy="12" r="10"></circle>
+													<line x1="2" y1="12" x2="22" y2="12"></line>
+													<path
+														d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+													</path>
+												</svg>
+											</div>
+											<span class="link-text">Website One</span>
+										</div>
+										<span class="link-tag">/tag1</span>
+									</a>
+
+									<a href="#" target="_blank" class="link-item">
+										<div class="link-content">
+											<div class="link-icon">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round"
+													stroke-linejoin="round">
+													<path
+														d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71">
+													</path>
+													<path
+														d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71">
+													</path>
+												</svg>
+											</div>
+											<span class="link-text">Website Two</span>
+										</div>
+										<span class="link-tag">/tag2</span>
+									</a>
+
+									<a href="#" target="_blank" class="link-item">
+										<div class="link-content">
+											<div class="link-icon">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round"
+													stroke-linejoin="round">
+													<circle cx="12" cy="12" r="10"></circle>
+													<line x1="2" y1="12" x2="22" y2="12"></line>
+													<path
+														d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+													</path>
+												</svg>
+											</div>
+											<span class="link-text">Website Three</span>
+										</div>
+										<span class="link-tag">/tag3</span>
+									</a>
+								</div>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+
+			<footer>
+				&copy; 2025 Your Name
+				<div class="credits-text">
+					Add your personal tagline or quote here
+				</div>
+			</footer>
+		</div>
+
+		<!-- Modal with photo album layout -->
+		<div id="bsf-modal">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h2 class="modal-title">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+							<circle cx="8.5" cy="8.5" r="1.5"></circle>
+							<polyline points="21 15 16 10 5 21"></polyline>
+						</svg>
+						Photo Album
+					</h2>
+					<button class="modal-close" id="modal-close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+				</div>
+
+				<div class="modal-body">
+					<div class="photo-album" id="photo-album">
+						<!-- Photo items will be created dynamically by JavaScript -->
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// DOM Elements
+    const enterScreen = document.getElementById('enter-screen');
+    const soundToggle = document.getElementById('sound-toggle');
+    const soundIcon = soundToggle.querySelector('svg');
+    const bsfBtn = document.getElementById('bsf-btn');
+    const bsfModal = document.getElementById('bsf-modal');
+    const modalClose = document.getElementById('modal-close');
+    const photoAlbum = document.getElementById('photo-album');
+    const audioContainer = document.getElementById('audio-container');
+    const nowPlaying = document.getElementById('now-playing');
+    const trackNameElement = document.getElementById('track-name');
+
+    // Photo album configuration
+    const photos = [
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%201",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%202",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%203",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%204",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%205",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%206",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%207",
+        caption: "Add your custom photo caption here"
+      },
+      {
+        image: "/placeholder.svg?height=200&width=200&query=person%208",
+        caption: "Add your custom photo caption here"
+      }
+    ];
+
+    // Initialize photo album
+    function initializePhotoAlbum() {
+      // Clear existing content
+      photoAlbum.innerHTML = '';
+      
+      // Create photo items for each photo
+      photos.forEach((photo) => {
+        // Create photo item
+        const photoItem = document.createElement('div');
+        photoItem.className = 'photo-item';
+        
+        // Create image container
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'photo-image-container';
+        
+        // Create image
+        const img = document.createElement('img');
+        img.src = photo.image;
+        img.alt = photo.caption;
+        img.className = 'photo-image';
+        
+        // Create caption
+        const caption = document.createElement('div');
+        caption.className = 'photo-caption';
+        caption.textContent = photo.caption;
+        
+        // Add to photo item
+        imageContainer.appendChild(img);
+        photoItem.appendChild(imageContainer);
+        photoItem.appendChild(caption);
+        
+        // Add to photo album
+        photoAlbum.appendChild(photoItem);
+        
+        // Add hover effect
+        setupPhotoHoverEffect(photoItem);
+      });
+    }
+
+    // Setup hover effect for photos
+    function setupPhotoHoverEffect(photoItem) {
+      const img = photoItem.querySelector('.photo-image');
+      
+      photoItem.addEventListener('mousemove', (e) => {
+        const rect = photoItem.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateY = ((x - centerX) / centerX) * 5;
+        const rotateX = ((centerY - y) / centerY) * 5;
+        
+        photoItem.style.transform = `translateY(-5px) scale(1.02) perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+      
+      photoItem.addEventListener('mouseleave', () => {
+        photoItem.style.transform = '';
+      });
+    }
+
+    // Audio playlist configuration
+    const audioTracks = [
+      {
+        url: "https://example.com/track1.mp3",
+        name: "Track 1 - Artist Name"
+      },
+      {
+        url: "https://example.com/track2.mp3",
+        name: "Track 2 - Artist Name"
+      },
+      {
+        url: "https://example.com/track3.mp3",
+        name: "Track 3 - Artist Name"
+      }
+      // Add your custom audio tracks here
+    ];
+
+    // Audio state
+    let currentTrackIndex = 0;
+    let isMuted = true;
+    let audioElements = [];
+
+    // Initialize audio playlist
+    function initializeAudioPlaylist() {
+      // Clear existing audio elements
+      audioContainer.innerHTML = '';
+      audioElements = [];
+      
+      // Create audio elements for each track
+      audioTracks.forEach((track, index) => {
+        const audio = document.createElement('audio');
+        audio.src = track.url;
+        audio.preload = 'auto';
+        
+        // When a track ends, play the next one
+        audio.addEventListener('ended', () => {
+          playNextTrack();
+        });
+        
+        audioContainer.appendChild(audio);
+        audioElements.push(audio);
+      });
+    }
+
+    // Play a specific track
+    function playTrack(index) {
+      // Stop all tracks
+      audioElements.forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+      
+      // Update current track index
+      currentTrackIndex = index;
+      
+      // Play the selected track
+      if (!isMuted && audioElements.length > 0) {
+        audioElements[currentTrackIndex].play().catch(e => console.log('Audio play prevented by browser policy'));
+        updateNowPlaying();
+      }
+    }
+
+    // Play the next track
+    function playNextTrack() {
+      if (audioElements.length > 0) {
+        // Move to the next track, loop back to the beginning if at the end
+        currentTrackIndex = (currentTrackIndex + 1) % audioElements.length;
+        playTrack(currentTrackIndex);
+      }
+    }
+
+    // Update the now playing indicator
+    function updateNowPlaying() {
+      if (audioTracks.length > 0) {
+        trackNameElement.textContent = audioTracks[currentTrackIndex].name;
+        nowPlaying.classList.add('visible');
+        
+        // Hide the indicator after 5 seconds
+        setTimeout(() => {
+          nowPlaying.classList.remove('visible');
+        }, 5000);
+      }
+    }
+
+    // Toggle sound
+    function toggleSound() {
+      if (audioElements.length === 0) return;
+      
+      if (isMuted) {
+        // Unmute and play current track
+        audioElements[currentTrackIndex].volume = 0.5;
+        audioElements[currentTrackIndex].play().catch(e => console.log('Audio play prevented by browser policy'));
+        isMuted = false;
+        updateNowPlaying();
+        
+        soundIcon.innerHTML = `
+          <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        `;
+      } else {
+        // Pause current track
+        audioElements[currentTrackIndex].pause();
+        isMuted = true;
+        nowPlaying.classList.remove('visible');
+        
+        soundIcon.innerHTML = `
+          <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        `;
+      }
+    }
+
+    // Title animation
+    function titleAnimation() {
+      let i = 0;
+      const txt = "Your Profile";
+      let isTyping = true;
+      let isDeleting = false;
+      let tmr;
+
+      function tick() {
+        document.title = txt.substring(0, i);
+        
+        if (isTyping) {
+          i++;
+          if (i > txt.length) {
+            isTyping = false;
+            isDeleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 1500);
+            return;
+          }
+          tmr = setTimeout(tick, 100 + Math.random() * 50);
+        } else if (isDeleting) {
+          i--;
+          if (i < 0) {
+            isTyping = true;
+            isDeleting = false;
+            clearTimeout(tmr);
+            tmr = setTimeout(tick, 800);
+            return;
+          }
+          tmr = setTimeout(tick, 50);
+        } else {
+          isDeleting = true;
+          tmr = setTimeout(tick, 0);
+        }
+      }
+
+      tick();
+    }
+
+    // Event Listeners
+    enterScreen.addEventListener('click', () => {
+      enterScreen.style.display = 'none';
+      
+      // Initialize audio (but don't play automatically)
+      initializeAudioPlaylist();
+    });
+
+    soundToggle.addEventListener('click', toggleSound);
+
+    bsfBtn.addEventListener('click', () => {
+      bsfModal.style.display = 'flex';
+    });
+
+    modalClose.addEventListener('click', () => {
+      bsfModal.style.display = 'none';
+    });
+
+    bsfModal.addEventListener('click', (e) => {
+      if (e.target === bsfModal) {
+        bsfModal.style.display = 'none';
+      }
+    });
+
+    // Keyboard navigation for modal
+    document.addEventListener('keydown', (e) => {
+      if (bsfModal.style.display === 'flex' && e.key === 'Escape') {
+        bsfModal.style.display = 'none';
+      }
+    });
+
+    // Initialize
+    window.addEventListener('load', () => {
+      titleAnimation();
+      initializePhotoAlbum();
+    });
+		</script>
+</body>
+
+</html>
